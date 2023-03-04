@@ -15,7 +15,6 @@ class videoType(Enum):
 
 
 class audioGrabber:
-
     __filePath = ""  # where resultant audio should be stored
     __fileName = ""  # name of final audio file
     __url = ""  # url to be downloaded
@@ -23,9 +22,7 @@ class audioGrabber:
     def __init__(self, path, file):
         self.__filePath = path
         self.__fileName = file
-        print(self.__filePath)
-        if not os.path.isdir(self.__filePath):
-            os.mkdir(self.__filePath)
+        os.makedirs(self.__filePath, exist_ok=True)
 
     def __youtube(self, url):
         out_file = YouTube(url).streams.first().download(output_path=self.__filePath)
