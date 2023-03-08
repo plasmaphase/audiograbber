@@ -1,4 +1,3 @@
-from pytube import YouTube
 import shutil
 from vimeo_downloader import Vimeo
 import moviepy.editor as mp
@@ -6,6 +5,7 @@ import speech_recognition as sr
 from enum import Enum
 import os
 import urllib.request
+from yt_dlp import YoutubeDL
 
 
 class videoType(Enum):
@@ -24,12 +24,36 @@ class audioGrabber:
         self.__fileName = file
         os.makedirs(self.__filePath, exist_ok=True)
 
+    def __remExt(self, file):
+        return os.path.basename(file).split(".")[0]
+
     def __youtube(self, url):
-        out_file = YouTube(url).streams.first().download(output_path=self.__filePath)
-        clip = mp.VideoFileClip(os.path.join(self.__filePath, out_file))
-        fullpath = os.path.join(self.__filePath, self.__fileName)
-        clip.audio.write_audiofile(fullpath)
-        # save the file
+        fullpath = os.path.join(
+            self.__filePath, self.__remExt(self.__fileName) + ".m4a"
+        )
+        ydl_opts = {
+            "format": "m4a/bestaudio/best",
+            "outtmpl": fullpath,
+            "postprocessors": [
+                {  # Extract audio using ffmpeg
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                }
+            ],
+        }
+        # fullpath = os.path.join(self.__filePath, self.__fileName)
+        # video_info = YoutubeDL().extract_info(url=url,download=False)
+        # options={'format':'bestaudio/best', 'keepvideo':False,'outtmpl':fullpath,}
+
+        with YoutubeDL(ydl_opts) as ydl:
+            ydl.download(url)
+
+        # print(url)
+        # out_file = YouTube(url).streams.filter(only_audio=True).first().download(output_path=self.__filePath)
+        # #clip = mp.VideoFileClip(os.path.join(self.__filePath, out_file))
+        # #fullpath = os.path.join(self.__filePath, self.__fileName)
+        # #clip.audio.write_audiofile(fullpath)
+
         # base, ext = os.path.splitext(out_file)
         # new_file = os.path.join(self.__filePath, self.__fileName + '.mp3')
         # shutil.move(out_file, new_file)
