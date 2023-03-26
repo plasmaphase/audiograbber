@@ -49,7 +49,7 @@ class audioGrabber:
             "postprocessors": [
                 {  # Extract audio using ffmpeg
                     "key": "FFmpegExtractAudio",
-                    "preferredcodec": "wav",
+                    "preferredcodec": "mp3",
                 }
             ],
         }
