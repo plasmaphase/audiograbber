@@ -7,12 +7,16 @@ import os
 import urllib.request
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
+from audiograbber.stpaul import StPaulVideo
+from audiograbber.mankato import Mankato
 
 
 class videoType(Enum):
     YOUTUBE = 0
     VIMEO = 1
-    OTHER = 2
+    STPAUL = 2
+    MANKATO = 3
+    OTHER = 4
 
 
 class audioGrabber:
@@ -56,6 +60,7 @@ class audioGrabber:
 
         with YoutubeDL(ydl_opts) as ydl:
             try:
+                ydl.cache.remove()
                 ydl.download(url)
             except DownloadError:
                 print("An exception has been caught")
@@ -77,6 +82,19 @@ class audioGrabber:
         print(f"Retrieve {url} to {file}")
         urllib.request.urlretrieve(url, file)
 
+    def __stPaul(self, url):
+        file = os.path.join(self.__filePath, self.__fileName)
+        print(f"Retrieve {url} to {file}")
+        spvid = StPaulVideo(url, file)
+        spvid.download_mp4()
+    
+    def __mankato(self, url):
+        file = os.path.join(self.__filePath, self.__fileName)
+        print(f"Retrieve {url} to {file}")
+        mvid = Mankato(url, file)
+        mvid.download()
+
+
     def dlAudio(self, url):
         self.__url = url
         fullpath = os.path.join(self.__filePath, self.__fileName)
@@ -85,7 +103,16 @@ class audioGrabber:
                 case videoType.YOUTUBE:
                     return self.__youtube(self.__url)
                 case videoType.VIMEO:
-                    return self.__vimeo(self.__url)
+                    #return self.__vimeo(self.__url)
+                    res = self.__youtube(self.__url)
+                    if not res:
+                        return self.__vimeo(self.__url)
+                    else:
+                        return res
+                case videoType.STPAUL:
+                    return self.__stPaul(self.__url)
+                case videoType.MANKATO:
+                    return self.__mankato(self.__url)
                 case videoType.OTHER:
                     return self.__audlink(self.__url)
 
@@ -95,5 +122,9 @@ class audioGrabber:
             return videoType.YOUTUBE
         elif "vimeo" in url:
             return videoType.VIMEO
+        elif "eduvision" in url:
+            return videoType.STPAUL
+        elif "mankatoaps" in url:
+            return videoType.MANKATO
         else:
             return videoType.OTHER
