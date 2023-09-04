@@ -33,15 +33,20 @@ class audioGrabber:
         return os.path.basename(file).split(".")[0]
 
     def __youtube(self, url):
+        print(f"Downloading: {url}")
         class loggerOutputs:
+            @staticmethod
             def error(msg):
                 print("Captured Error: " + msg)
-
+                
+            @staticmethod
             def warning(msg):
                 print("Captured Warning: " + msg)
 
+            @staticmethod
             def debug(msg):
                 print("Captured Log: " + msg)
+
 
         fullpath = os.path.join(
             self.__filePath, self.__remExt(self.__fileName) + ".m4a"
